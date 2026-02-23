@@ -15,9 +15,9 @@ const AppRoutes = () => {
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/courses" element={<Courses />} />
+<Route path="/courses" element={<Courses />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/Faq" element={< Faq />} />
+        <Route path="/faq" element={<Faq />} />
       </Route>
 
       {/* Auth routes (no navbar/footer if you want) */}
