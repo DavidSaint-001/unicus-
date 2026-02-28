@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Clock, ArrowUpRight } from "lucide-react";
+import { Clock, ArrowUpRight, Search, X } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
 import frontend from '../assets/front end (1).avif';
 import mgraphics from '../assets/motion graphics.avif';
 import project from '../assets/project management.avif';
@@ -25,6 +26,7 @@ const courseData = [
     duration: "4 Months",
     level: "Beginner – Intermediate",
     img: digital,
+    path: "/courses/digital-marketing",
   },
   {
     title: "Motion Graphics & Animation",
@@ -32,6 +34,7 @@ const courseData = [
     duration: "3 Months",
     level: "Intermediate",
     img: mgraphics,
+    path: "/courses/motion-graphics",
   },
   {
     title: "Project Management",
@@ -39,6 +42,7 @@ const courseData = [
     duration: "5 Months",
     level: "All Levels",
     img: project,
+    path: "/courses/project-management",
   },
   {
     title: "Front-End Development",
@@ -46,6 +50,7 @@ const courseData = [
     duration: "6 Months",
     level: "Beginner – Advanced",
     img: frontend,
+    path: "/courses/frontend",
   },
   {
     title: "Data Analysis",
@@ -53,6 +58,7 @@ const courseData = [
     duration: "3 Months",
     level: "Intermediate",
     img: data,
+    path: "/courses/data-analysis",
   },
   {
     title: "Cybersecurity",
@@ -60,6 +66,7 @@ const courseData = [
     duration: "9 Months",
     level: "Advanced",
     img: cyber,
+    path: "/courses/cybersecurity",
   },
   {
     title: "Python Programming",
@@ -67,6 +74,7 @@ const courseData = [
     duration: "4 Months",
     level: "Beginner – Intermediate",
     img: phython,
+    path: "/courses/python-programming",
   },
   {
     title: "Mobile App Development",
@@ -74,6 +82,7 @@ const courseData = [
     duration: "5 Months",
     level: "Intermediate",
     img: app,
+    path: "/courses/mobile-app-development",
   },
   {
     title: "Graphic Design",
@@ -81,6 +90,7 @@ const courseData = [
     duration: "3 Months",
     level: "Beginner",
     img: graphic,
+    path: "/courses/graphic-design",
   },
   {
     title: "Video Editing",
@@ -88,6 +98,7 @@ const courseData = [
     duration: "4 Months",
     level: "Beginner – Intermediate",
     img: editing,
+    path: "/courses/video-editing",
   },
   {
     title: "Computer Appreciation",
@@ -95,6 +106,7 @@ const courseData = [
     duration: "2 Months",
     level: "Beginner",
     img: computer,
+    path: "/courses/computer-appreciation",
   },
   {
     title: "Introduction to AI",
@@ -102,6 +114,7 @@ const courseData = [
     duration: "3 Months",
     level: "Beginner – Intermediate",
     img: ai,
+    path: "/courses/introduction-to-ai",
   },
   {
     title: "UI/UX Design",
@@ -109,6 +122,7 @@ const courseData = [
     duration: "4 Months",
     level: "Beginner – Intermediate",
     img: uiux,
+    path: "/courses/ui-ux-design",
   },
 ];
 
@@ -150,17 +164,36 @@ const CourseCard = ({ course, index }) => (
           {course.duration}
         </div>
 
-        <button className="flex items-center gap-2 text-sm font-medium text-slate-900 hover:text-blue-600 transition">
+        <Link to={course.path} className="flex items-center gap-2 text-sm font-medium text-slate-900 hover:text-blue-600 transition">
           View Details <ArrowUpRight size={16} />
-        </button>
+        </Link>
       </div>
     </div>
   </motion.div>
 );
 
 const CoursesPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get("search") || "";
+  
+  // Filter courses based on search query
+  const filteredCourses = useMemo(() => {
+    if (!searchQuery.trim()) return courseData;
+    
+    const query = searchQuery.toLowerCase();
+    return courseData.filter(course => 
+      course.title.toLowerCase().includes(query) ||
+      course.desc.toLowerCase().includes(query) ||
+      course.level.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
+
+  const clearSearch = () => {
+    setSearchParams({});
+  };
+
   return (
-    <section className="bg-slate-50 py-20 px-6 lg:px-20 min-h-screen">
+    <section className="bg-slate-50 py-20 px-6 lg:px-20 min-h-screen pt-16">
       <div className="max-w-7xl mx-auto">
 
         <div className="mb-16">
@@ -168,12 +201,43 @@ const CoursesPage = () => {
             Home <span className="mx-2">//</span> Courses
           </p>
           <h1 className="text-4xl font-semibold text-slate-900">
-            Our Academic Programs
+            {searchQuery ? `Search Results for "${searchQuery}"` : "Our Academic Programs"}
           </h1>
         </div>
 
+        {/* Search Results Info */}
+        {searchQuery && (
+          <div className="mb-8 flex items-center justify-between">
+            <p className="text-slate-600">
+              Found <span className="font-semibold text-blue-600">{filteredCourses.length}</span> course{filteredCourses.length !== 1 ? 's' : ''} matching "{searchQuery}"
+            </p>
+            <button 
+              onClick={clearSearch}
+              className="flex items-center gap-2 text-sm text-slate-600 hover:text-blue-600 transition"
+            >
+              <X size={16} />
+              Clear search
+            </button>
+          </div>
+        )}
+
+        {/* No Results Message */}
+        {searchQuery && filteredCourses.length === 0 && (
+          <div className="text-center py-12 bg-white rounded-xl border border-slate-200">
+            <Search size={48} className="mx-auto text-slate-300 mb-4" />
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">No courses found</h3>
+            <p className="text-slate-600 mb-4">Try adjusting your search terms or browse all courses</p>
+            <button 
+              onClick={clearSearch}
+              className="text-blue-600 font-semibold hover:text-blue-700"
+            >
+              View all courses
+            </button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {courseData.map((course, index) => (
+          {filteredCourses.map((course, index) => (
             <CourseCard key={index} course={course} index={index} />
           ))}
         </div>
